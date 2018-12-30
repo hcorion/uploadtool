@@ -25,32 +25,7 @@ else
   echo "Neither sha256sum nor shasum is available, cannot check hashes"
 fi
 
-# The calling script (usually .travis.yml) can set a suffix to be used for
-# the tag and release name. This way it is possible to have a release for
-# the output of the CI/CD pipeline (marked as 'continuous') and also test
-# builds for other branches.
-# If this build was triggered by a tag, call the result a Release
-if [ ! -z "$UPLOADTOOL_SUFFIX" ] ; then
-  if [ "$UPLOADTOOL_SUFFIX" = "$TRAVIS_TAG" ] ; then
-    RELEASE_NAME="$TRAVIS_TAG"
-    RELEASE_TITLE="Release build ($TRAVIS_TAG)"
-    is_prerelease="false"
-  else
-    RELEASE_NAME="continuous-$UPLOADTOOL_SUFFIX"
-    RELEASE_TITLE="Continuous build ($UPLOADTOOL_SUFFIX)"
-    is_prerelease="true"
-  fi
-else
-  if [ "$TRAVIS_TAG" != "" ]; then
-    RELEASE_NAME="$TRAVIS_TAG"
-    RELEASE_TITLE="Release build ($TRAVIS_TAG)"
-    is_prerelease="false"
-  else
-    RELEASE_NAME="continuous" # Do not use "latest" as it is reserved by GitHub
-    RELEASE_TITLE="Continuous build"
-    is_prerelease="true"
-  fi
-fi
+is_prerelease="false"
 
 if [ "$ARTIFACTORY_BASE_URL" != "" ]; then
   echo "ARTIFACTORY_BASE_URL set, trying to upload to artifactory"
@@ -216,7 +191,7 @@ if [ "$TRAVIS_COMMIT" != "$target_commit_sha" ] ; then
   fi
 
   release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
-       --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"$TRAVIS_COMMIT"'","name": "'"$RELEASE_TITLE"'","body": "'"$BODY"'","draft": false,"prerelease": '$is_prerelease'}' "https://api.github.com/repos/$REPO_SLUG/releases")
+       --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"$REPO_COMMIT"'","name": "'"$RELEASE_TITLE"'","body": "'"$BODY"'","draft": false,"prerelease": '$is_prerelease'}' "https://api.github.com/repos/$REPO_SLUG/releases")
 
   echo "$release_infos"
 
