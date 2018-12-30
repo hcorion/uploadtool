@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set +x # Do not leak information
+#set +x # Do not leak information
 
 # Exit immediately if one of the files given as arguments is not there
 # because we don't want to delete the existing release if we don't have
